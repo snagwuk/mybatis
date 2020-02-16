@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- mapper를 쓴다는 것은 mybatis.config resource에 연결한다는 것
+모든 태그의 이름들은 1)기본형 2)오브젝트 3)맵 resultMap은 컬럼과 field를 연결해 주는것 
+웬만하면 resultMap 쓰지말고 type쓰자
+xml에서 resultMap이나 type 명시하면 xml에 반드시 있어야한다.
+생성자를 쓸 때 버릇처럼 default 생성자를 명시하자 -->
+<mapper namespace="mybatis.mapper.CommentMapper">
+	<!-- namespace다음에 id를 쳐야한다 -->
+	<cache />
+	<sql id="BaseColumns">
+		comment_no AS commentNo,
+		user_id AS userId,
+		comment_content
+		AS commentContent,
+		reg_date AS regDate
+	</sql>
+	<select id="selectCommentByPrimaryKey" parameterType="Long"
+		resultType="Comment"> <!-- result는 결과를 답는다 그리고 저건 class이다. 그리고 Comment로 쓸 수 있는 이유는 xml에서 alias로 
+			처리해줬기 때문에 대소문자 구분 꼭 해라 -->
+		SELECT
+		<include refid="BaseColumns" />
+		FROM Comment
+		WHERE comment_no = #{commentNo} <!-- parameterType이 들어간다 -->
+	</select>
+
+	<select id="selectCommentByCondition" parameterType="hashmap"
+		resultType="Comment">
+		SELECT
+		comment_no AS commentNo,
+		user_id AS userId,
+		comment_content AS commentContent,
+		reg_date AS regDate
+		FROM COMMENT
+		<where>
+			<if test="commentNo != null">
+				comment_no = #{commentNo}
+			</if>
+		</where>
+	</select>
+		<insert id="insertComment" parameterType="Comment">
+		<!-- DML일 경우에는 RESULTTYPE 없다! 근데 RETURN은 된다 VALUE의 대소문자 구분! -->
+		INSERT INTO COMMENT (comment_no, user_id, comment_content, reg_date)
+		VALUES (#{commentNo}, #{userId}, #{commentContent}, #{regDate})
+		</insert>
+	
+	<update id="updateComment" parameterType="Comment">
+		UPDATE comment SET
+			comment_content = #{commentContent}
+			WHERE comment_no = #{commentNo};
+	</update>	
+	
+	<delete id="deleteComment" parameterType="Long">
+		DELETE FROM comment
+			<!-- comment_content = #{commentContent} -->
+			WHERE comment_no = #{commentNo};
+	</delete>
+</mapper>
